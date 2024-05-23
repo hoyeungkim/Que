@@ -1,110 +1,48 @@
-//202113387 ±èÈ£¿µ
+//202113387 ê¹€í˜¸ì˜
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <iostream>
+#include <queue>
+#include <string>
 
-#define MAX_WORDS 100
-#define MAX_LENGTH 20
-
-// Å¥ ±¸Á¶Ã¼ Á¤ÀÇ
-typedef struct {
-    char words[MAX_WORDS][MAX_LENGTH];
-    int front, rear;
-} Queue;
-
-// Å¥ ÃÊ±âÈ­ ÇÔ¼ö
-void initQueue(Queue* q) {
-    q->front = q->rear = 0;
-}
-
-// Å¥¿¡ ¿ø¼Ò Ãß°¡ ÇÔ¼ö
-void enqueue(Queue* q, char* word) {
-    strcpy(q->words[q->rear++], word);
-}
-
-// Å¥¿¡¼­ ¿ø¼Ò Á¦°Å ÇÔ¼ö
-void dequeue(Queue* q) {
-    q->front++;
-}
-
-// Å¥°¡ ºñ¾îÀÖ´ÂÁö È®ÀÎÇÏ´Â ÇÔ¼ö
-int isEmpty(Queue* q) {
-    return q->front == q->rear;
-}
-
-// ¹®Àå º¹¿ø °¡´É ¿©ºÎ¸¦ È®ÀÎÇÏ´Â ÇÔ¼ö
-int reconstructSentence(int n_students, int n_words) {
-    char words[MAX_WORDS][MAX_LENGTH];
-    int i, j;
-    Queue q;
-    initQueue(&q);
-
-    // °¢ ÇĞ»ıÀÌ ÇÊ±âÇÑ ´Ü¾î ÀÔ·Â¹Ş±â
-    for (i = 0; i < n_students; i++) {
-        for (j = 0; j < n_words; j++) {
-            char word[MAX_LENGTH];
-            scanf("%s", word);
-            enqueue(&q, word);
-        }
-    }
-
-    // ¹®Àå º¹¿ø
-    for (i = 0; i < n_words; i++) {
-        char next_word[MAX_LENGTH];
-        int word_exist = 0;
-        for (j = 0; j < n_students; j++) {
-            if (!isEmpty(&q)) {
-                strcpy(next_word, q.words[q.front]);
-                dequeue(&q);
-                word_exist = 1;
-                break;
-            }
-        }
-        if (!word_exist) {
-            return 0; // º¹¿ø ºÒ°¡´É
-        }
-        // ´ÙÀ½ ´Ü¾î¸¦ Å¥¿¡ Ãß°¡
-        for (j = 0; j < n_students; j++) {
-            if (!isEmpty(&q) && strcmp(next_word, q.words[q.front]) != 0) {
-                strcpy(words[j], q.words[q.front]);
-                dequeue(&q);
-            }
-        }
-        // ´ÙÀ½ ´Ü¾î°¡ ¾ø´Â °æ¿ì
-        if (isEmpty(&q)) {
-            break;
-        }
-        // Å¥¿¡ ³²Àº ´Ü¾îµéÀ» ¹ö¸²
-        while (!isEmpty(&q)) {
-            dequeue(&q);
-        }
-        // ´ÙÀ½ ´Ü¾î¸¦ Å¥¿¡ Ãß°¡
-        for (j = 0; j < n_students; j++) {
-            if (strlen(words[j]) > 0) {
-                enqueue(&q, words[j]);
-            }
-        }
-    }
-    return 1; // º¹¿ø °¡´É
-}
+using namespace std;
 
 int main() {
-    int n_sentences;
-    scanf("%d", &n_sentences);
+	int problem_num, student_num, word_num = 0;
+	cin >> problem_num;
 
-    // ¹®Àå¸¶´Ù º¹¿ø °¡´É ¿©ºÎ È®ÀÎ ÈÄ Ãâ·Â
-    for (int i = 0; i < n_sentences; i++) {
-        int n_students, n_words;
-        scanf("%d %d", &n_students, &n_words);
+	for (int problem = 0; problem < problem_num; problem++) {
+		cin >> student_num >> word_num;
 
-        if (reconstructSentence(n_students, n_words)) {
-            printf("1\n");
-        }
-        else {
-            printf("0\n");
-        }
-    }
+		string* sentence = new string[word_num];
+		for (int word = 0; word < word_num; word++) {
+			cin >> sentence[word];
+		}
 
-    return 0;
+		queue<string>* queue_array = new queue<string>[student_num];
+		for (int student = 0; student < student_num; student++) {
+			int input_num;
+			cin >> input_num;
+			for (int input = 0; input < input_num; input++) {
+				string word;
+				cin >> word;
+				queue_array[student].push(word);
+			}
+		}
+
+		bool is_existed = false;
+		for (int word = 0; word < word_num; word++) {
+			is_existed = false;
+			for (int student = 0; student < student_num; student++) {
+				if (sentence[word] == queue_array[student].front()) {
+					queue_array[student].pop();
+					is_existed = true;
+				}
+			}
+			if (!is_existed) {
+				break;
+			}
+		}
+		cout << (is_existed ? "1" : "0") << "\n";
+		delete[] queue_array;
+	}
 }
